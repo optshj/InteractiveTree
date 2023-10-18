@@ -1,9 +1,9 @@
-import React from 'react';
+import Canvas from './component/Canvas'
 
-function App() {
+function App(){
   return (
     <div className="App">
-		하이
+		  <Canvas/>
     </div>
   );
 }
