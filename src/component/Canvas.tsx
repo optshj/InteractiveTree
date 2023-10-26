@@ -5,7 +5,7 @@ function Canvas(){
 	const contextRef = useRef(null);
 	const [ctx,setCtx] = useState();
 	const size:number = 11; //나무의 전체적인 크기
-	const frame = 60; //나무가 생성되는 속도
+	const frame = 10; //나무가 생성되는 속도
 	
 	useEffect(()=> {
 		const canvas = canvasRef.current;
@@ -28,40 +28,33 @@ function Canvas(){
 	function random(min,max){/*min,max 사이의 랜덤한 수 리턴*/
 		return min + Math.floor(Math.random() * (max - min + 1));
 	}
-	function draw(startX,startY,gapX,gapY,currentframe,width){
-		if (currentframe == frame){
-			cancelAnimationFrame(draw);
-			return;
-		}
-		requestAnimationFrame(()=>draw(startX+gapX,startY+gapY,gapX,gapY,currentframe+1,width));
-		ctx.beginPath();
-		ctx.lineWidth = width;
-		ctx.moveTo(startX,startY);
-		ctx.lineTo(startX+gapX,startY+gapY);
-		ctx.stroke();
-	}
-	function branch(startX,startY,endX,endY,depth,width,angle,currentFrame){
+
+	function branch(startX,startY,endX,endY,depth,width,angle,cntframe){
 		if (size === depth) {
 			cancelAnimationFrame(branch);
 			return;
 		};
-		ctx.beginPath();
-		ctx.lineWidth = width;
-		ctx.moveTo(startX,startY);
-		ctx.lineTo(endX,endY);
-		ctx.stroke();
-		const gapX:number = (endX-startX)/frame;
-		const gapY:number = (endY-startY)/frame;
-		const len = depth == 0 ? random(7,10):random(0,12);
-		const nextX:number = endX + cos(angle)*(size-depth)*len;
-		const nextY:number = endY + sin(angle)*(size-depth)*len;
-		requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle+random(12,23),0));
-		requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle-random(12,23),0));
+		if (cntframe === frame ){
+			const len = depth == 0 ? random(7,10):random(0,12);
+			const nextX:number = endX + cos(angle)*(size-depth)*len;
+			const nextY:number = endY + sin(angle)*(size-depth)*len;
+			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle+random(12,23),0));
+			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle-random(12,23),0));
+		}
+		else {
+			const gapX = (endX-startX)/frame;
+			const gapY = (endY-startY)/frame;
+			ctx.beginPath();
+			ctx.lineWidth = width;
+			ctx.moveTo(startX+gapX*(cntframe),startY+gapY*(cntframe));
+			ctx.lineTo(startX+gapX*(cntframe+1),startY+gapY*(cntframe+1));
+			ctx.stroke();
+			requestAnimationFrame(()=>branch(startX,startY,endX,endY,depth,width,angle,cntframe+1));
+		}
 	}
 	const drawing = e => {
 		const offsetX = e.nativeEvent.offsetX;
-		
-		requestAnimationFrame(()=>branch(offsetX,window.innerHeight,offsetX,window.innerHeight,0,size,-90));
+		requestAnimationFrame(()=>branch(offsetX,window.innerHeight,offsetX,window.innerHeight,0,size,-90,0));
 	}
 	return(
 		<div>
