@@ -1,20 +1,31 @@
-import {useRef,useState,useEffect } from 'react';
+import { useCallback,useRef,useState,useEffect } from 'react';
 
 function Canvas(){
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const contextRef = useRef(null);
 	const [ctx,setCtx] = useState();
+	const [windowSize,setWindowSize] = useState({
+		width:window.innerWidth,
+		height:window.innerHeight
+	})
 	const size:number = 11; //나무의 전체적인 크기
 	const frame = 10; //나무가 생성되는 속도
-	
+	const onResize = useCallback(()=> {
+		setWindowSize({
+			width:window.innerWidth,
+			height:window.innerHeight
+		})
+	});
+
 	useEffect(()=> {
 		const canvas = canvasRef.current;
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
-		
 		const context = canvas.getContext("2d");
 		contextRef.current = context;
 		setCtx(context);
+		window.addEventListener('resize', onResize);
+		return () =>{
+			window.removeEventListener('resize',onResize);
+		}
 	},[]);
 	function degToRad(angle) {
 		return (angle / 180.0) * Math.PI;
@@ -58,7 +69,7 @@ function Canvas(){
 	}
 	return(
 		<div>
-			<canvas ref={canvasRef} onMouseDown={e =>drawing(e)}></canvas>
+			<canvas ref={canvasRef} width={windowSize.width} height={windowSize.height} onMouseDown={e =>drawing(e)}></canvas>
 		</div>
 	)
 }
