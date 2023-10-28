@@ -1,4 +1,7 @@
-# Interactive Developer 김종민 님의 Plant Trees 따라 만들기
+# 김종민 님의 Plant Trees 따라 만들기
+
+## Commit Convention
+  
 | CommitMessage | Mean |
 | -- | -- |
 | [Feat] | 기능 추가 |

@@ -10,7 +10,6 @@ function Canvas(){
 		width:window.innerWidth,
 		height:window.innerHeight
 	})
-	const [color,setColor] = useState('#000000');
 	const [dark,setDark] = useState(false); // 다크모드
 	const size:number = 11; //나무의 전체적인 크기
 	const frame = 10; //나무가 생성되는 속도
@@ -50,17 +49,17 @@ function Canvas(){
 		return min + Math.floor(Math.random() * (max - min + 1));
 	}
 
-	function branch(startX,startY,endX,endY,depth,width,angle,cntframe){
+	function branch(startX,startY,endX,endY,depth,width,angle,cntframe,color){
 		if (size === depth) {
 			cancelAnimationFrame(branch);
 			return;
-		};
+		}
 		if (cntframe === frame ){
 			const len = depth == 0 ? random(9,12):random(0,12);
 			const nextX:number = endX + cos(angle)*(size-depth)*len;
 			const nextY:number = endY + sin(angle)*(size-depth)*len;
-			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle+random(12,23),0));
-			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle-random(12,23),0));
+			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle+random(12,23),0,color));
+			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle-random(12,23),0,color));
 		}
 		else {
 			const gapX = (endX-startX)/frame;
@@ -69,26 +68,30 @@ function Canvas(){
 			ctx.lineWidth = width;
 			ctx.moveTo(startX+gapX*(cntframe),startY+gapY*(cntframe));
 			ctx.lineTo(startX+gapX*(cntframe+1),startY+gapY*(cntframe+1));
-			ctx.fillStyle = color;
-			ctx.strokeStyle = color;
+			if (dark && depth < 3) {
+				ctx.fillStyle = '#FFFFFF';
+				ctx.strokeStyle = '#FFFFFF';
+			}
+			else if (dark) {
+				ctx.fillStyle = color;
+				ctx.strokeStyle = color;
+			}
+			else {
+				ctx.fillStyle = '#000000';
+				ctx.strokeStyle = '#000000';
+			}
 			ctx.stroke();
-			requestAnimationFrame(()=>branch(startX,startY,endX,endY,depth,width,angle,cntframe+1));
+			requestAnimationFrame(()=>branch(startX,startY,endX,endY,depth,width,angle,cntframe+1,color));
 		}
 	}
 	const drawing = e => {
 		const offsetX = e.nativeEvent.offsetX;
-		if (dark){
-			setColor(colors[random(0,colors.length)]);
-		}
-		else {
-			setColor('#000000');
-		}
-		requestAnimationFrame(()=>branch(offsetX,window.innerHeight,offsetX,window.innerHeight,0,size,-90,0));
+		requestAnimationFrame(()=>branch(offsetX,window.innerHeight,offsetX,window.innerHeight,0,size,-90,0,colors[random(0,colors.length)]));
 	}
 	return(
 		<div className={dark?styles.black:styles.white}>
 			<div className={dark?styles.DarkMode:styles.WhiteMode} onClick={onDark}>{dark?<BsFillSunFill/>:<BsFillMoonFill/>}</div>
-			<canvas ref={canvasRef} width={windowSize.width} height={windowSize.height} onMouseDown={e =>drawing(e)}></canvas>
+			<canvas className={styles.canvas} ref={canvasRef} width={windowSize.width} height={windowSize.height} onMouseDown={e =>drawing(e)}></canvas>
 		</div>
 	)
 }
