@@ -13,7 +13,7 @@ function Canvas(){
 	const [dark,setDark] = useState(false); // 다크모드
 	const size:number = 11; //나무의 전체적인 크기
 	const frame = 10; //나무가 생성되는 속도
-	const colors = ['#FF7E9D','#22D6B2','#B4C3FF','#3CFBFF','#FFE650','#F08C8C','#F49551'];
+	const colors = ['#C8FFFF','#78EAFF','#FFE3EE','#FFEB46','#dda0dd','#D2D2FF','#FF9DFF'];
 	
 	const onDark = () => {
 		setDark(!dark);
@@ -36,6 +36,45 @@ function Canvas(){
 			window.removeEventListener('resize',onResize);
 		}
 	},[]);
+	function hexToRgb(hex){ /* 16진수를 rgb로 변환*/
+		const stringHex = String(hex);
+		const rgb = (stringHex.slice(1)).match(/.{1,2}/g);
+		const rgbList = [
+			parseInt(rgb[0],16),
+			parseInt(rgb[1],16),
+			parseInt(rgb[2],16)
+		];
+		return rgbList;
+	}
+	
+	function rgbToHex(rgb){ /* rgb를 16진수로 변환 */
+		const hex = Number(rgb).toString(16);
+		return hex.length === 1 ? '0' + hex : hex;
+	}
+	function makeThick(hex){ /* 색깔을 점점 진하게 만드는 함수 */
+		let rgb = hexToRgb(hex);
+		let color = 0;
+		const m = 0.9;
+		if (rgb[0] >= rgb[1] && rgb[0] >= rgb[2] ){
+			color = 1;
+		}
+		else if (rgb[1] >= rgb[0] && rgb[1] >= rgb[2]){
+			color = 2;
+		}
+		else {
+			color = 3;
+		}
+		if (color === 1 ){
+			rgb = [rgb[0],rgb[1]*m,rgb[2]*m];
+		}
+		else if (color === 2){
+			rgb = [rgb[0]*m,rgb[1],rgb[2]*m];
+		}
+		else {
+			rgb = [rgb[0]*m,rgb[1]*m,rgb[2]];
+		}
+		return '#' + rgbToHex(parseInt(rgb[0])) + rgbToHex(parseInt(rgb[1])) + rgbToHex(parseInt(rgb[2]));
+	}
 	function degToRad(angle) {
 		return (angle / 180.0) * Math.PI;
 	}
@@ -55,11 +94,15 @@ function Canvas(){
 			return;
 		}
 		if (cntframe === frame ){
+			let nextColor = color;
+			if (depth >= 3) {
+				nextColor = makeThick(color);
+			}
 			const len = depth == 0 ? random(9,12):random(0,12);
 			const nextX:number = endX + cos(angle)*(size-depth)*len;
 			const nextY:number = endY + sin(angle)*(size-depth)*len;
-			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle+random(12,23),0,color));
-			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle-random(12,23),0,color));
+			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle+random(12,23),0,nextColor));
+			requestAnimationFrame(()=>branch(endX,endY,nextX,nextY,depth+1,width-1,angle-random(12,23),0,nextColor));
 		}
 		else {
 			const gapX = (endX-startX)/frame;
@@ -86,7 +129,7 @@ function Canvas(){
 	}
 	const drawing = e => {
 		const offsetX = e.nativeEvent.offsetX;
-		requestAnimationFrame(()=>branch(offsetX,window.innerHeight,offsetX,window.innerHeight,0,size,-90,0,colors[random(0,colors.length)]));
+		requestAnimationFrame(()=>branch(offsetX,window.innerHeight,offsetX,window.innerHeight,0,size,-90,0,colors[random(0,colors.length-1)]));
 	}
 	return(
 		<div className={dark?styles.black:styles.white}>
