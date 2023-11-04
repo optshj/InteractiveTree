@@ -19,5 +19,5 @@
 * Eslint를 제대로 활용하지 못하였다.
 
 
-## 구현영상
+## 동작
 ![녹화_2023_11_04_22_40_03_726_Trim](https://github.com/optshj/InteractiveTree/assets/105402944/a001ec18-6f82-44d3-9981-115404890feb)
