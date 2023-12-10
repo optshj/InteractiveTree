@@ -1,5 +1,8 @@
 # 김종민 님의 Plant Trees 따라 만들기
 
+## 프로젝트 실행
+    npm start
+    
 ## Commit Convention
   
 | CommitMessage | Mean |
